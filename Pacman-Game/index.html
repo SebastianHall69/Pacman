@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Pacman</title>
+    <meta charset="utf-8">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+        }
+    </style>
+    <script src="//cdn.jsdelivr.net/phaser/2.2.2/phaser.min.js"></script>
+    <script src="scripts/Pacman.js"></script>
+    <script src="scripts/Ghost.js"></script>
+    <script src="scripts/MainGame.js"></script>
+</head>
+<body>
+
+    <script type="text/javascript">
+
+    var game = new Phaser.Game(448, 496, Phaser.AUTO);
+    game.state.add('Game', MainGame, true);
+
+    </script>
+
+</body>
+</html>
