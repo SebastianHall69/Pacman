@@ -1,4 +1,4 @@
-Ghost = function (game, mainGame, x, y, animStartIndex) {
+Ghost = function (game, mainGame, x, y, animStartIndex, movetype) {
     //Inherit from Sprite
     Phaser.Sprite.call(this, game, (x * 16) + 8, (y * 16) + 8, 'ghosts', animStartIndex);
     this.speed = 150;
@@ -15,6 +15,10 @@ Ghost = function (game, mainGame, x, y, animStartIndex) {
     this.current = Phaser.NONE;
     this.turning = Phaser.NONE;
 
+    //Selected movement type.
+    //0 = Chase, 1 = Random
+    this.moveType = movetype;
+
     //Animations
     this.animations.add('up', [animStartIndex, animStartIndex + 1], 10, true);
     this.animations.add('down', [animStartIndex + 2, animStartIndex + 3], 10, true);
@@ -22,10 +26,18 @@ Ghost = function (game, mainGame, x, y, animStartIndex) {
     this.animations.add('right', [animStartIndex + 6, animStartIndex + 7], 10, true);
 
     game.physics.arcade.enable(this);
+    this.anchor.setTo(0.5);
     this.body.setSize(16, 16, 0, 0);
     this.play('right');
-    //this.move(Phaser.LEFT);
-    this.leaveHouse();
+
+    //If were movetype 0 (Chase) we start outside of the ghost house
+    if (this.moveType == 0) {
+        this.start();
+    }
+    //Movetype 1 (Random) starts in the ghosthouse but leaves immediately.
+    else if (this.moveType == 1) {
+        this.leaveHouse();
+    }
 }
 
 Ghost.prototype = Object.create(Phaser.Sprite.prototype);
@@ -117,19 +129,13 @@ Ghost.prototype.start = function () {
     this.inplay = true;
 }
 
-Ghost.prototype.checkMove = function () {
-
-    //Set inplay once we collide into a wall.
-    if (this.directions[this.current].index !== this.mainGame.moveabletile) {
-        this.inplay = true;
-    }
-
+Ghost.prototype.moveChase = function () {
     //Initialize the variables we need.
     var dist = 10000; //Just set to a high number.
     var dir = null;
 
     //Check if were at an intersection
-    //Then choose the tile with the closest direction to pacman
+    //Then choose the tile with the closest distance to pacman
     if (this.inplay && this.lastIntersection != this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
         for (var i = 1; i <= 4; i++) {
             if (this.directions[i].index === this.mainGame.moveabletile && this.directions[i] !== this.current && this.opposites[i] != this.current) {
@@ -141,6 +147,25 @@ Ghost.prototype.checkMove = function () {
             }
         }
         dir != null ? this.checkDirection(dir) : console.log("Pathing Error");
+    }
+}
+
+Ghost.prototype.moveRandom = function () {
+    //Init variables
+    var dirs = new Array();
+
+    //Check if were at an intersection
+    //Then choose a random tile
+    if (this.inplay && this.lastIntersection != this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
+        for (var i = 1; i <= 4; i++) {
+            if (this.directions[i].index === this.mainGame.moveabletile && this.directions[i] !== this.current && this.opposites[i] != this.current) {
+                dirs.push(i);
+                this.lastIntersection = this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index);
+            }
+        }
+        //Choose direction at random
+        var index = Math.floor((Math.random() * dirs.length));
+        dirs[index] != null ? this.checkDirection(dirs[index]) : console.log("Pathing Error");
     }
 }
 
@@ -169,7 +194,12 @@ Ghost.prototype.update = function () {
 
     //Do movement when in bounds
     if (this.inplay && this.x > 16 && this.x < 432) {
-        this.checkMove();
+        if (this.moveType == 0) {
+            this.moveChase();
+        }
+        else if (this.moveType == 1) {
+            this.moveRandom();
+        }
     }
 
     if (this.turning !== Phaser.NONE) {

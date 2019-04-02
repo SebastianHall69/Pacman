@@ -14,7 +14,13 @@ Pacman = function (game, mainGame, x, y) {
     this.mainGame = mainGame;
 
     this.anchor.set(0.5);
+
+    this.dead = false;
+
+    //Animations
     this.animations.add('munch', [0, 1, 2, 1], 15, true);
+    death = this.animations.add('die', [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], 10, false);
+    death.onComplete.add(function() { this.kill() }, this);
 
     this.game.physics.arcade.enable(this);
     this.body.setSize(16, 16, 0, 0);
@@ -119,11 +125,21 @@ Pacman.prototype.turn = function () {
 
 Pacman.prototype.eatDot = function (pacman, dot) {
     dot.kill();
+    this.mainGame.score += 10;
     if (this.mainGame.dots.total === 0) {
         this.mainGame.dots.callAll('revive');
     }
-},
+}
 
+Pacman.prototype.die = function () {
+    this.scale.x = 1;
+    this.angle = 0;
+    this.play('die');
+    this.dead = true;
+    this.body.velocity.y = 0;
+    this.body.velocity.x = 0;
+    this.game.time.events.add(Phaser.Timer.SECOND*4, function(){ game.state.restart() }, this);
+}
     Pacman.prototype.update = function () {
         //Corridor that goes to other side of the map
         if (this.x < -8) {
@@ -137,6 +153,10 @@ Pacman.prototype.eatDot = function (pacman, dot) {
         this.mainGame.physics.arcade.collide(this, this.mainGame.layer);
         this.mainGame.physics.arcade.overlap(this, this.mainGame.dots, this.eatDot, null, this);
 
+        //Check for collisions with ghosts
+        this.mainGame.physics.arcade.overlap(this, this.mainGame.blinky, this.die, null, this);
+        this.mainGame.physics.arcade.overlap(this, this.mainGame.clyde, this.die, null, this);
+
         this.marker.x = this.mainGame.math.snapToFloor(Math.floor(this.x), this.mainGame.gridsize) / this.mainGame.gridsize;
         this.marker.y = this.mainGame.math.snapToFloor(Math.floor(this.y), this.mainGame.gridsize) / this.mainGame.gridsize;
 
@@ -147,7 +167,7 @@ Pacman.prototype.eatDot = function (pacman, dot) {
         this.directions[4] = this.mainGame.map.getTileBelow(this.mainGame.layer.index, this.marker.x, this.marker.y);
 
         //Check for input
-        if (this.x > 0 && this.x < 432) {
+        if (this.x > 0 && this.x < 432 && !this.dead) {
             this.checkKeys();
         }
 

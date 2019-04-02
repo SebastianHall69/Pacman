@@ -12,6 +12,9 @@ var MainGame = function (game) {
     //Tile index for blank/moveable tile
     this.moveabletile = 14;
     this.gridsize = 16;
+
+    //Score
+    this.score = 0;
 };
 
 MainGame.prototype = {
@@ -56,9 +59,10 @@ MainGame.prototype = {
         this.map.setCollisionByExclusion([this.moveabletile], true, this.layer);
 
         //Setup ghosts
-        this.blinky = new Ghost(game, this, 11.5, 14, 0);
-        this.blinky.anchor.setTo(0.5);
+        this.blinky = new Ghost(game, this, 13.5, 11, 0, 0);
         this.add.existing(this.blinky);
+        this.clyde = new Ghost(game, this, 11.5, 14, 24, 1);
+        this.add.existing(this.clyde);
 
         //Setup pacman
         this.pacman = new Pacman(game, this, 14, 17);
@@ -66,6 +70,6 @@ MainGame.prototype = {
     },
 
     update: function () {
-
+        document.getElementById("score").innerHTML="Score: " + this.score;
     }
 };

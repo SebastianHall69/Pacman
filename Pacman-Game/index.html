@@ -8,6 +8,16 @@
             margin: 0;
             padding: 0;
             background-color: #000;
+            color: white;
+            text-align: center;
+        }
+        div {
+            width:85vh;
+            height:100%;
+            background-size:cover;
+            overflow:hidden;
+            margin-left: auto ;
+            margin-right: auto ;
         }
     </style>
     <script src="//cdn.jsdelivr.net/phaser/2.2.2/phaser.min.js"></script>
@@ -19,10 +29,13 @@
 
     <script type="text/javascript">
 
-    var game = new Phaser.Game(448, 496, Phaser.AUTO);
+    var game = new Phaser.Game(448, 496, Phaser.AUTO, 'pacman');
     game.state.add('Game', MainGame, true);
 
     </script>
+
+<p id="score">This text will change</p>
+<div id="pacman"></div>
 
 </body>
 </html>
