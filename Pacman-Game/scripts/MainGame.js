@@ -65,32 +65,6 @@ MainGame.prototype = {
         this.add.existing(this.pacman);
     },
 
-    checkKeys: function () {
-
-        if (this.cursors.left.isDown && this.current !== Phaser.LEFT)
-        {
-            this.checkDirection(Phaser.LEFT);
-        }
-        else if (this.cursors.right.isDown && this.current !== Phaser.RIGHT)
-        {
-            this.checkDirection(Phaser.RIGHT);
-        }
-        else if (this.cursors.up.isDown && this.current !== Phaser.UP)
-        {
-            this.checkDirection(Phaser.UP);
-        }
-        else if (this.cursors.down.isDown && this.current !== Phaser.DOWN)
-        {
-            this.checkDirection(Phaser.DOWN);
-        }
-        else
-        {
-            //So you have to hold the key down to turn a corner
-            this.turning = Phaser.NONE;
-        }
-
-    },
-
     update: function () {
 
     }
