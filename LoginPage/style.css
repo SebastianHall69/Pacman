@@ -1,0 +1,90 @@
+:root {
+    --pacblue: #2121DE;
+    --pacyellow: #FFFF00;
+}
+
+body {
+    background-color: black;
+    color: var(--pacyellow);
+    font-family: "Segoe UI";
+}
+
+div {
+    margin: 40px auto;
+}
+
+
+div#logoDiv {
+    width: 65%;
+    text-align: center;
+}
+
+div#main {
+    width: 50%;
+    text-align: center;
+}
+
+div#signUpForm {
+    display: none;
+    text-align: left;
+}
+
+div#loginForm {
+    display: none;
+    text-align: left;
+}
+
+label {
+    text-align: left;
+    font-size: 2em;
+}
+
+input {
+    margin-bottom: 18px;
+    margin-top: 8px;
+    outline: none;
+}
+
+input[type=text], input[type=password] {
+    height: 40px;
+    width: 70%;
+    font-size: 2em;
+    border: 6px solid var(--pacblue);
+    border-radius: 15px;
+}
+
+input[type=submit], input[type=button] {
+    font-size: 1.5em;
+    background-color: var(--pacyellow);
+    color: black;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 14px;
+    margin: 8px;
+    transition-duration: 0.3s;
+}
+
+input[type=submit]:hover, input[type=button]:hover {
+    background-color: var(--pacblue);
+    color: var(--pacyellow);
+}
+
+input[type=submit]:active, input[type=button]:active {
+    transform: translateY(4px);
+}
+
+img#logo {
+    width: 70%;
+    margin: auto;
+}
+
+img#banner {
+    position: fixed;
+    bottom: 20px;
+    width: 100%;
+}
+
+.errMsg {
+    color: red;
+}
