@@ -7,6 +7,7 @@ body {
     background-color: black;
     color: var(--pacyellow);
     font-family: "Segoe UI";
+    height: 90vh;
 }
 
 div {
@@ -82,8 +83,6 @@ img#logo {
 
 img#banner {
     z-index: -10000;
-    position: fixed;
-    bottom: 1.25em;
     width: 100%;
 }
 

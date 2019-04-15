@@ -26,7 +26,7 @@
         }
         
         //If login information is valid send to page
-        //header("location: login.php");//Sends to php page after login
+        header("location: login.php");//Sends to php page after login
     }
 ?>
 <html lang="en-US">
