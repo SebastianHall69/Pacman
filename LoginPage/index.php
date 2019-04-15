@@ -1,4 +1,34 @@
 <!DOCTYPE html>
+<?php
+    //include("config.php");    //Establishes connection to database
+    session_start();            //Starts session
+    
+    //If info has been sent through post to server
+    if($_SERVER["REQUEST_METHOD"] == "POST"){
+        
+        //If login was chosen
+        if(isSet($_POST["loginUsername"])) {
+            echo "Login chosen<br/>";
+            //Retrieves username and password through post
+            $username = $_POST["loginUsername"];
+            $password = $_POST["loginPassword"];
+            
+            //Validate through database with sql
+            
+            //If successul
+                //Set username and password in session
+                $_SESSION["loginUsername"] = $username;
+                $_SESSION["loginPassword"] = $password;
+            
+        }//If sign up is chosen
+        else if(isSet($_POST["signUpUsername"])) {
+            echo "Signup chosen<br/>";
+        }
+        
+        //If login information is valid send to page
+        //header("location: login.php");//Sends to php page after login
+    }
+?>
 <html lang="en-US">
 
 <head>
@@ -25,7 +55,7 @@
 
         <!--Login Form-->
         <div id="loginForm">
-            <form action="login.php" method="post" target="_blank" name="loginForm" onsubmit="return validateLogin()">
+            <form method="post" target="_self" name="loginForm" onsubmit="return validateLogin()">
                 <label for="loginUsername">Username</label><br/>
                 <input type="text" id="loginUsername" name="loginUsername" title="1-16 char alphanumerical" />
                 <span class="errMsg">&nbsp;</span><br/>
@@ -38,7 +68,7 @@
 
         <!--Sign Up Form-->
         <div id="signUpForm" >
-            <form action="signup.php" method="post" target="_blank" name="signUpForm" onsubmit="return validateSignUp()">
+            <form method="post" target="_self" name="signUpForm" onsubmit="return validateSignUp()">
                 <label for="signUpUsername">Username</label><br/>
                 <input type="text" id="signUpUsername" name="signUpUsername" title="1-16 char alphanumerical" />
                 <span class="errMsg">&nbsp;</span><br/>
