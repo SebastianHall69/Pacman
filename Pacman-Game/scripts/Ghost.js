@@ -20,6 +20,7 @@ Ghost = function (game, mainGame, x, y, animStartIndex, movetype) {
     this.moveType = movetype;
 
     //Animations
+    //Parameters(name,frames,frameRate,loop)
     this.animations.add('up', [animStartIndex, animStartIndex + 1], 10, true);
     this.animations.add('down', [animStartIndex + 2, animStartIndex + 3], 10, true);
     this.animations.add('left', [animStartIndex + 4, animStartIndex + 5], 10, true);
@@ -37,6 +38,14 @@ Ghost = function (game, mainGame, x, y, animStartIndex, movetype) {
     //Movetype 1 (Random) starts in the ghosthouse but leaves immediately.
     else if (this.moveType == 1) {
         this.leaveHouse();
+    }
+    else if (this.moveType == 2) {
+        //Wait 5 seconds before leaving house
+        game.time.events.add(Phaser.Timer.SECOND * 5, this.leaveHouse, this);
+    }
+    else if (this.moveType == 3) {
+        //Wait 10 seconds before leaving house
+        game.time.events.add(Phaser.Timer.SECOND * 10, this.leaveHouse, this);
     }
 }
 
@@ -129,27 +138,32 @@ Ghost.prototype.start = function () {
     this.inplay = true;
 }
 
+//Red ghost: Blinky
 Ghost.prototype.moveChase = function () {
     //Initialize the variables we need.
     var dist = 10000; //Just set to a high number.
     var dir = null;
+    
+    //console.log(this.mainGame.map.getTile(Pacman.marker.x, pacman.marker.y, pacman.mainGame.layer.index));
+    
 
-    //Check if were at an intersection
-    //Then choose the tile with the closest distance to pacman
-    if (this.inplay && this.lastIntersection != this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
-        for (var i = 1; i <= 4; i++) {
-            if (this.directions[i].index === this.mainGame.moveabletile && this.directions[i] !== this.current && this.opposites[i] != this.current) {
-                if (this.checkDistance(i) < dist) {
-                    dir = i;
-                    dist = this.checkDistance(i);
-                }
-                this.lastIntersection = this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index);
-            }
-        }
-        dir != null ? this.checkDirection(dir) : console.log("Pathing Error");
-    }
+//    //Check if were at an intersection
+//    //Then choose the tile with the closest distance to pacman
+//    if (this.inplay && this.lastIntersection != this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
+//        for (var i = 1; i <= 4; i++) {
+//            if (this.directions[i].index === this.mainGame.moveabletile && this.directions[i] !== this.current && this.opposites[i] != this.current) {
+//                if (this.checkDistance(i) < dist) {
+//                    dir = i;
+//                    dist = this.checkDistance(i);
+//                }
+//                this.lastIntersection = this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index);
+//            }
+//        }
+//        dir != null ? this.checkDirection(dir) : console.log("Pathing Error");
+//    }
 }
 
+//Yellow ghost: Clyde
 Ghost.prototype.moveRandom = function () {
     //Init variables
     var dirs = new Array();
@@ -166,6 +180,29 @@ Ghost.prototype.moveRandom = function () {
         //Choose direction at random
         var index = Math.floor((Math.random() * dirs.length));
         dirs[index] != null ? this.checkDirection(dirs[index]) : console.log("Pathing Error");
+    }
+}
+
+//Pink ghost: Pinky
+//Movement Desc: Land on space 16 pixels (2tiles) in front of Pacman
+Ghost.prototype.movePink = function() {
+        //Initialize the variables we need.
+    var dist = 10000; //Just set to a high number.
+    var dir = null;
+
+    //Check if were at an intersection
+    //Then choose the tile with the closest distance to pacman
+    if (this.inplay && this.lastIntersection != this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
+        for (var i = 1; i <= 4; i++) {
+            if (this.directions[i].index === this.mainGame.moveabletile && this.directions[i] !== this.current && this.opposites[i] != this.current) {
+                if (this.checkDistance(i) < dist) {
+                    dir = i;
+                    dist = this.checkDistance(i);
+                }
+                this.lastIntersection = this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index);
+            }
+        }
+        dir != null ? this.checkDirection(dir) : console.log("Pathing Error");
     }
 }
 
@@ -199,6 +236,9 @@ Ghost.prototype.update = function () {
         }
         else if (this.moveType == 1) {
             this.moveRandom();
+        }
+        else if (this.moveType == 2) {
+            this.movePink();
         }
     }
 

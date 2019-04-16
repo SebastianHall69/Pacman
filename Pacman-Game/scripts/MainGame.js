@@ -61,8 +61,10 @@ MainGame.prototype = {
         //Setup ghosts
         this.blinky = new Ghost(game, this, 13.5, 11, 0, 0);
         this.add.existing(this.blinky);
-        this.clyde = new Ghost(game, this, 11.5, 14, 24, 1);
+        this.clyde = new Ghost(game, this, 15.5, 14, 24, 1);
         this.add.existing(this.clyde);
+        this.pinky = new Ghost(game, this, 13.5, 14, 8, 2);
+        this.add.existing(this.pinky);
 
         //Setup pacman
         this.pacman = new Pacman(game, this, 14, 17);
