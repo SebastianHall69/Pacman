@@ -16,7 +16,6 @@ Ghost = function (game, mainGame, x, y, animStartIndex, movetype) {
     this.turning = Phaser.NONE;
 
     //Selected movement type.
-    //0 = Chase, 1 = Random
     this.moveType = movetype;
 
     //Animations
@@ -31,11 +30,11 @@ Ghost = function (game, mainGame, x, y, animStartIndex, movetype) {
     this.body.setSize(16, 16, 0, 0);
     this.play('right');
 
-    //If were movetype 0 (Chase) we start outside of the ghost house
+    //Movetype 0 starts outside of the ghost house
     if (this.moveType == 0) {
         this.start();
     }
-    //Movetype 1 (Random) starts in the ghosthouse but leaves immediately.
+    //Movetype 1 starts in the ghosthouse but leaves immediately.
     else if (this.moveType == 1) {
         this.leaveHouse();
     }
@@ -97,7 +96,6 @@ Ghost.prototype.move = function (direction) {
     }
 
     this.current = direction;
-
 }
 
 Ghost.prototype.turn = function () {
@@ -117,10 +115,9 @@ Ghost.prototype.turn = function () {
     this.move(this.turning);
     this.turning = Phaser.NONE;
     return true;
-
 }
 
-Ghost.prototype.checkDistance = function (direction, tileCor, inky, clyde) {
+Ghost.prototype.checkDistance = function (direction, tileCor) {
     //Destination points for ghost (x,y)
     var destX, destY;
     
@@ -147,7 +144,7 @@ Ghost.prototype.checkDistance = function (direction, tileCor, inky, clyde) {
     }
     
     //Only for Inky
-    if (inky) {
+    if (this.moveType === 2) {
         //Get position of blinky
         var blinkX = this.mainGame.blinky.x;
         var blinkY = this.mainGame.blinky.y;
@@ -159,7 +156,7 @@ Ghost.prototype.checkDistance = function (direction, tileCor, inky, clyde) {
     }
     
     //Only for Clyde
-    if (clyde) {
+    if (this.moveType === 3) {
         //Calculate distance between Clyde and Pacman
         var distCtoP = Phaser.Math.distance(this.mainGame.clyde.x, this.mainGame.clyde.y, this.mainGame.pacman.x, this.mainGame.pacman.x);
         //If more than 8 tiles away, movement will be similar to Blinky (default)
@@ -175,8 +172,8 @@ Ghost.prototype.checkDistance = function (direction, tileCor, inky, clyde) {
 }
 
 Ghost.prototype.leaveHouse = function () {
-    var tweenA = this.game.add.tween(this).to({ x: 226, y: 234 }, 1000, Phaser.Easing.Linear.None);
-    var tweenB = this.game.add.tween(this).to({ x: 226, y: 184 }, 1000, Phaser.Easing.Linear.None);
+    var tweenA = this.game.add.tween(this).to({ x: 224, y: 234 }, 1000, Phaser.Easing.Linear.None);
+    var tweenB = this.game.add.tween(this).to({ x: 224, y: 184 }, 1000, Phaser.Easing.Linear.None);
     tweenA.chain(tweenB);
     tweenB.onComplete.add(this.start, this);
     tweenA.start();
@@ -202,9 +199,9 @@ Ghost.prototype.moveBlinky = function () {
     if (this.inplay && this.lastIntersection != this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
         for (var i = 1; i <= 4; i++) {
             if (this.directions[i].index === this.mainGame.moveabletile && this.directions[i] !== this.current && this.opposites[i] != this.current) {
-                if (this.checkDistance(i, target, false, false) < dist) { 
+                if (this.checkDistance(i, target) < dist) { 
                     dir = i;
-                    dist = this.checkDistance(i, target, false, false);
+                    dist = this.checkDistance(i, target);
                 }
                 this.lastIntersection = this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index);
             }
@@ -226,9 +223,9 @@ Ghost.prototype.movePinky = function() {
     if (this.inplay && this.lastIntersection != this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
         for (var i = 1; i <= 4; i++) {
             if (this.directions[i].index === this.mainGame.moveabletile && this.directions[i] !== this.current && this.opposites[i] != this.current) {
-                if (this.checkDistance(i, target, false, false) < dist) {
+                if (this.checkDistance(i, target) < dist) {
                     dir = i;
-                    dist = this.checkDistance(i, target, false, false);
+                    dist = this.checkDistance(i, target);
                 }
                 this.lastIntersection = this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index);
             }
@@ -251,9 +248,9 @@ Ghost.prototype.moveInky = function() {
     if (this.inplay && this.lastIntersection != this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
         for (var i = 1; i <= 4; i++) {
             if (this.directions[i].index === this.mainGame.moveabletile && this.directions[i] !== this.current && this.opposites[i] != this.current) {
-                if (this.checkDistance(i, target, true, false) < dist) {
+                if (this.checkDistance(i, target) < dist) {
                     dir = i;
-                    dist = this.checkDistance(i, target, true, false);
+                    dist = this.checkDistance(i, target);
                 }
                 this.lastIntersection = this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index);
             }
@@ -268,6 +265,7 @@ Ghost.prototype.moveInky = function() {
 Ghost.prototype.moveClyde = function () {
     //Init variables
     var dist = 10000; //Just set to a high number.
+    var dir = null;
     var target = 0; //Target pacman
 
     //Check if were at an intersection
@@ -275,34 +273,104 @@ Ghost.prototype.moveClyde = function () {
     if (this.inplay && this.lastIntersection != this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
         for (var i = 1; i <= 4; i++) {
             if (this.directions[i].index === this.mainGame.moveabletile && this.directions[i] !== this.current && this.opposites[i] != this.current) {
-                if (this.checkDistance(i, target, false, true) < dist) { 
+                if (this.checkDistance(i, target) < dist) { 
                     dir = i;
-                    dist = this.checkDistance(i, target, false, true);
+                    dist = this.checkDistance(i, target);
                 }
                 this.lastIntersection = this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index);
             }
         }
         dir != null ? this.checkDirection(dir) : console.log("Pathing Error");
     }
+}
+
+//Scatter movement
+Ghost.prototype.scatter = function() {
+    //Init variables
+    var dist = 10000; //Just set to a high number.
+    var dir = null;
+    var x, y; //Target destinations
     
-//    -----Original function for Clyde before rewritten-----
-//Ghost.prototype.moveRandom = function () {
-//    //Init variables
-//    var dirs = new Array();
-//
-//    //Check if were at an intersection
-//    //Then choose a random tile
-//    if (this.inplay && this.lastIntersection != this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
-//        for (var i = 1; i <= 4; i++) {
-//            if (this.directions[i].index === this.mainGame.moveabletile && this.directions[i] !== this.current && this.opposites[i] != this.current) {
-//                dirs.push(i);
-//                this.lastIntersection = this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index);
-//            }
-//        }
-//        //Choose direction at random
-//        var index = Math.floor((Math.random() * dirs.length));
-//        dirs[index] != null ? this.checkDirection(dirs[index]) : console.log("Pathing Error");
-//    }
+    //Upper right corner for Blinky
+    if (this.moveType === 0){
+        x = 392;
+        y = -40;
+    }
+    //Top left corner for Pinky
+    else if (this.moveType === 1) {
+        x = 56;
+        y = -40;
+    }
+    //Bottom right corner for Inky
+    else if (this.moveType === 2) {
+        x = 440;
+        y = 520;
+    }
+    //Bottom left corner for Clyde
+    else if (this.moveType === 3) {
+        x = 8;
+        y = 520;
+    }
+       
+    //Check if were at an intersection
+    //Then choose the tile with the closest distance to target
+    if (this.inplay && this.lastIntersection != this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
+        for (var i = 1; i <= 4; i++) {
+            if (this.directions[i].index === this.mainGame.moveabletile && this.directions[i] !== this.current && this.opposites[i] != this.current) {
+                if (Phaser.Math.distance(this.directions[i].worldX, this.directions[i].worldY, x, y) < dist) { 
+                    dir = i;
+                    dist = Phaser.Math.distance(this.directions[i].worldX, this.directions[i].worldY, x, y); 
+                }
+                this.lastIntersection = this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index);
+            }
+        }
+        dir != null ? this.checkDirection(dir) : console.log("Pathing Error");
+    } 
+}
+
+Ghost.prototype.movement = function() {
+    //Get time
+    var time = this.mainGame.timer.seconds;
+    
+    if (time >= 0 && time <= 7) {           //First 7 seconds, scatter
+        this.scatter();
+    }
+    else if (time > 7 && time <= 27) {      //Next 20 seconds, chase
+        this.allMove();
+    }
+    else if (time > 27 && time <= 34) {     //Next 7 seconds, scatter
+        this.scatter();
+    }
+    else if (time > 34 && time <= 54) {     //Next 20 seconds, chase
+        this.allMove();
+    }
+    else if (time > 54 && time <= 59) {     //Next 5 seconds, scatter
+        this.scatter();
+    }
+    else if (time > 59 && time <= 79) {     //Next 20 seconds, chase
+        this.allMove();
+    }
+    else if (time > 79 && time <= 84) {     //Next 5 seconds, scatter
+        this.scatter();
+    }
+    else {                                  //Permanent scatter
+        this.allMove();
+    }  
+}
+
+Ghost.prototype.allMove = function() {
+    if (this.moveType === 0) {
+        this.moveBlinky();
+    }
+    else if (this.moveType === 1) {
+        this.movePinky();
+    }
+    else if (this.moveType === 2) {
+        this.moveInky();
+    }
+    else if (this.moveType === 3) {
+        this.moveClyde();
+    }
 }
 
 Ghost.prototype.update = function () {
@@ -328,22 +396,13 @@ Ghost.prototype.update = function () {
     this.directions[4] = this.mainGame.map.getTileBelow(this.mainGame.layer.index, this.marker.x, this.marker.y);
 
     //Do movement when in bounds
-    if (this.inplay && this.x > 16 && this.x < 432) {
-        if (this.moveType === 0) {
-            this.moveBlinky();
-        }
-        else if (this.moveType === 1) {
-            this.moveClyde();
-        }
-        else if (this.moveType === 2) {
-            this.movePinky();
-        }
-        else if (this.moveType === 3) {
-            this.moveInky();
-        }
+    if (this.inplay && this.x > 16 && this.x < 432) {    
+        this.movement();
     }
 
     if (this.turning !== Phaser.NONE) {
         this.turn();
     }
-}
+
+    //game.debug.text('Elapsed seconds: ' + this.game.time.totalElapsedSeconds(), 32, 32);
+};

@@ -32,11 +32,17 @@ MainGame.prototype = {
     },
 
     preload: function () {
+        
         this.load.image('dot', 'assets/dot.png');
         this.load.image('tiles', 'assets/pacman-tiles.png');
         this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
         this.load.spritesheet('ghosts', 'assets/ghosts.png', 32, 32);
         this.load.tilemap('map', 'assets/pacman-map.json', null, Phaser.Tilemap.TILED_JSON);
+        
+        //Load Sound effects
+        this.load.audio('die', 'assets/audio/die.mp3');
+        this.load.audio('eat', 'assets/audio/eat.mp3');
+        
     },
 
     create: function () {
@@ -61,17 +67,26 @@ MainGame.prototype = {
         //Setup ghosts
         this.blinky = new Ghost(game, this, 13.5, 11, 0, 0);
         this.add.existing(this.blinky);
-        this.pinky = new Ghost(game, this, 13.5, 14, 8, 2);
+        this.pinky = new Ghost(game, this, 13.5, 14, 8, 1);
         this.add.existing(this.pinky);
-        this.inky = new Ghost(game, this, 11.5, 14, 16, 3);
+        this.inky = new Ghost(game, this, 11.5, 14, 16, 2);
         this.add.existing(this.inky);
-        this.clyde = new Ghost(game, this, 15.5, 14, 24, 1);
+        this.clyde = new Ghost(game, this, 15.5, 14, 24, 3);
         this.add.existing(this.clyde);
 
         //Setup pacman
         //X coordinate should be 13.5 but pacman can't move if changed
         this.pacman = new Pacman(game, this, 13, 23);
         this.add.existing(this.pacman);
+        
+        //Timer
+        this.timer = game.time.create(false);
+        this.timer.start(); //Start time
+        
+        //Add sound effects
+        this.add.audio('die', 'assets/audio/die.wav');
+        this.add.audio('eat', 'assets/audio/eat.mp3');
+        
     },
 
     update: function () {

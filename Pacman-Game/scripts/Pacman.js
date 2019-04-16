@@ -129,12 +129,14 @@ Pacman.prototype.eatDot = function (pacman, dot) {
     if (this.mainGame.dots.total === 0) {
         this.mainGame.dots.callAll('revive');
     }
+    this.game.sound.play('eat');
 }
 
 Pacman.prototype.die = function () {
     this.scale.x = 1;
     this.angle = 0;
     this.play('die');
+    //this.game.sound.play('die');    //Sound effect
     this.dead = true;
     this.body.velocity.y = 0;
     this.body.velocity.x = 0;
