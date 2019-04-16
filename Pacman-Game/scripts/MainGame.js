@@ -61,13 +61,16 @@ MainGame.prototype = {
         //Setup ghosts
         this.blinky = new Ghost(game, this, 13.5, 11, 0, 0);
         this.add.existing(this.blinky);
-        this.clyde = new Ghost(game, this, 15.5, 14, 24, 1);
-        this.add.existing(this.clyde);
         this.pinky = new Ghost(game, this, 13.5, 14, 8, 2);
         this.add.existing(this.pinky);
+        this.inky = new Ghost(game, this, 11.5, 14, 16, 3);
+        this.add.existing(this.inky);
+        this.clyde = new Ghost(game, this, 15.5, 14, 24, 1);
+        this.add.existing(this.clyde);
 
         //Setup pacman
-        this.pacman = new Pacman(game, this, 14, 17);
+        //X coordinate should be 13.5 but pacman can't move if changed
+        this.pacman = new Pacman(game, this, 13, 23);
         this.add.existing(this.pacman);
     },
 

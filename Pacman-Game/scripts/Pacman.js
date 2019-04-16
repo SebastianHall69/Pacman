@@ -28,7 +28,7 @@ Pacman = function (game, mainGame, x, y) {
     this.mainGame.cursors = this.mainGame.input.keyboard.createCursorKeys();
 
     this.play('munch');
-    this.move(Phaser.LEFT);
+    //this.move(Phaser.LEFT);
 }
 
 Pacman.prototype = Object.create(Phaser.Sprite.prototype);
@@ -140,38 +140,41 @@ Pacman.prototype.die = function () {
     this.body.velocity.x = 0;
     this.game.time.events.add(Phaser.Timer.SECOND*4, function(){ game.state.restart() }, this);
 }
-    Pacman.prototype.update = function () {
-        //Corridor that goes to other side of the map
-        if (this.x < -8) {
-            this.x = 452;
-        }
-        else if (this.x > 452) {
-            this.x = -8;
-        }
 
-        //Check for collisions with tiles and dots.
-        this.mainGame.physics.arcade.collide(this, this.mainGame.layer);
-        this.mainGame.physics.arcade.overlap(this, this.mainGame.dots, this.eatDot, null, this);
-
-        //Check for collisions with ghosts
-        this.mainGame.physics.arcade.overlap(this, this.mainGame.blinky, this.die, null, this);
-        this.mainGame.physics.arcade.overlap(this, this.mainGame.clyde, this.die, null, this);
-
-        this.marker.x = this.mainGame.math.snapToFloor(Math.floor(this.x), this.mainGame.gridsize) / this.mainGame.gridsize;
-        this.marker.y = this.mainGame.math.snapToFloor(Math.floor(this.y), this.mainGame.gridsize) / this.mainGame.gridsize;
-
-        //  Update our grid sensors
-        this.directions[1] = this.mainGame.map.getTileLeft(this.mainGame.layer.index, this.marker.x, this.marker.y);
-        this.directions[2] = this.mainGame.map.getTileRight(this.mainGame.layer.index, this.marker.x, this.marker.y);
-        this.directions[3] = this.mainGame.map.getTileAbove(this.mainGame.layer.index, this.marker.x, this.marker.y);
-        this.directions[4] = this.mainGame.map.getTileBelow(this.mainGame.layer.index, this.marker.x, this.marker.y);
-
-        //Check for input
-        if (this.x > 0 && this.x < 432 && !this.dead) {
-            this.checkKeys();
-        }
-
-        if (this.turning !== Phaser.NONE) {
-            this.turn();
-        }
+Pacman.prototype.update = function () {
+    //Corridor that goes to other side of the map
+    if (this.x < -8) {
+        this.x = 452;
     }
+    else if (this.x > 452) {
+        this.x = -8;
+    }
+
+    //Check for collisions with tiles and dots.
+    this.mainGame.physics.arcade.collide(this, this.mainGame.layer);
+    this.mainGame.physics.arcade.overlap(this, this.mainGame.dots, this.eatDot, null, this);
+
+    //Check for collisions with ghosts
+    this.mainGame.physics.arcade.overlap(this, this.mainGame.blinky, this.die, null, this);
+    this.mainGame.physics.arcade.overlap(this, this.mainGame.pinky, this.die, null, this);
+    this.mainGame.physics.arcade.overlap(this, this.mainGame.inky, this.die, null, this);
+    this.mainGame.physics.arcade.overlap(this, this.mainGame.clyde, this.die, null, this);
+
+    this.marker.x = this.mainGame.math.snapToFloor(Math.floor(this.x), this.mainGame.gridsize) / this.mainGame.gridsize;
+    this.marker.y = this.mainGame.math.snapToFloor(Math.floor(this.y), this.mainGame.gridsize) / this.mainGame.gridsize;
+
+    //  Update our grid sensors
+    this.directions[1] = this.mainGame.map.getTileLeft(this.mainGame.layer.index, this.marker.x, this.marker.y);
+    this.directions[2] = this.mainGame.map.getTileRight(this.mainGame.layer.index, this.marker.x, this.marker.y);
+    this.directions[3] = this.mainGame.map.getTileAbove(this.mainGame.layer.index, this.marker.x, this.marker.y);
+    this.directions[4] = this.mainGame.map.getTileBelow(this.mainGame.layer.index, this.marker.x, this.marker.y);
+
+    //Check for input
+    if (this.x > 0 && this.x < 432 && !this.dead) {
+        this.checkKeys();
+    }
+
+    if (this.turning !== Phaser.NONE) {
+        this.turn();
+    }
+}
