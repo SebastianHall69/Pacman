@@ -14,6 +14,10 @@ Ghost = function (game, mainGame, x, y, animStartIndex, movetype) {
     this.opposites = [Phaser.NONE, Phaser.RIGHT, Phaser.LEFT, Phaser.DOWN, Phaser.UP];
     this.current = Phaser.NONE;
     this.turning = Phaser.NONE;
+    
+    this.timerGhost = game.time.create(false);  //Timer for ghost after being eaten
+    this.scared = false;                        //Scared status
+    this.scaredFlash = false;                   //Scared status just before wearing off
 
     //Selected movement type.
     this.moveType = movetype;
@@ -24,6 +28,8 @@ Ghost = function (game, mainGame, x, y, animStartIndex, movetype) {
     this.animations.add('down', [animStartIndex + 2, animStartIndex + 3], 10, true);
     this.animations.add('left', [animStartIndex + 4, animStartIndex + 5], 10, true);
     this.animations.add('right', [animStartIndex + 6, animStartIndex + 7], 10, true);
+    this.animations.add('scare', [32,33], 10, true);         //Blue       scare animation
+    this.animations.add('scare2', [32,33,34,35], 10, true);  //Blue+white scare animation
 
     game.physics.arcade.enable(this);
     this.anchor.setTo(0.5);
@@ -80,21 +86,23 @@ Ghost.prototype.move = function (direction) {
     direction === Phaser.LEFT || direction === Phaser.RIGHT ? this.body.velocity.x = speed : this.body.velocity.y = speed;
 
     //Play animation depending on direction
-    switch (direction) {
-        case Phaser.LEFT:
-            this.play('left');
-            break;
-        case Phaser.RIGHT:
-            this.play('right');
-            break;
-        case Phaser.UP:
-            this.play('up');
-            break;
-        case Phaser.DOWN:
-            this.play('down');
-            break;
+    if (!this.scared) {
+        switch (direction) {
+            case Phaser.LEFT:
+                this.play('left');
+                break;
+            case Phaser.RIGHT:
+                this.play('right');
+                break;
+            case Phaser.UP:
+                this.play('up');
+                break;
+            case Phaser.DOWN:
+                this.play('down');
+                break;
+        }
     }
-
+    
     this.current = direction;
 }
 
@@ -149,8 +157,7 @@ Ghost.prototype.checkDistance = function (direction, tileCor) {
         var blinkX = this.mainGame.blinky.x;
         var blinkY = this.mainGame.blinky.y;
         
-        //Update new target coordinates
-        //New vector location: (x2+(x2-x1), y2+(y2-y1))
+        //Update new target coordinates: (x2+(x2-x1), y2+(y2-y1))
         destX = destX + (destX - blinkX);
         destY = destY + (destY - blinkY);
     }
@@ -172,7 +179,7 @@ Ghost.prototype.checkDistance = function (direction, tileCor) {
 }
 
 Ghost.prototype.leaveHouse = function () {
-    var tweenA = this.game.add.tween(this).to({ x: 224, y: 234 }, 1000, Phaser.Easing.Linear.None);
+    var tweenA = this.game.add.tween(this).to({ x: 224, y: 232 }, 1000, Phaser.Easing.Linear.None);
     var tweenB = this.game.add.tween(this).to({ x: 224, y: 184 }, 1000, Phaser.Easing.Linear.None);
     tweenA.chain(tweenB);
     tweenB.onComplete.add(this.start, this);
@@ -189,85 +196,59 @@ Ghost.prototype.start = function () {
 //Red ghost: Blinky
 //Movement: Chases pacman directly
 Ghost.prototype.moveBlinky = function () {
-    //Initialize the variables we need.
-    var dist = 10000; //Just set to a high number.
-    var dir = null;
     var target = 0; //Target Pacman
-
-    //Check if were at an intersection
-    //Then choose the tile with the closest distance to pacman
-    if (this.inplay && this.lastIntersection != this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
-        for (var i = 1; i <= 4; i++) {
-            if (this.directions[i].index === this.mainGame.moveabletile && this.directions[i] !== this.current && this.opposites[i] != this.current) {
-                if (this.checkDistance(i, target) < dist) { 
-                    dir = i;
-                    dist = this.checkDistance(i, target);
-                }
-                this.lastIntersection = this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index);
-            }
-        }
-        dir != null ? this.checkDirection(dir) : console.log("Pathing Error");
-    }
+    this.chase(target);
 }
 
 //Pink ghost: Pinky
 //Movement: Target 4 tiles in front of Pacman
 Ghost.prototype.movePinky = function() {
-    //Initialize the variables we need.
-    var dist = 10000; //Just set to a high number.
-    var dir = null;
     var target = 64; //Target 4 tiles in front of pacman
-
-    //Check if were at an intersection
-    //Then choose the tile with the closest distance to target
-    if (this.inplay && this.lastIntersection != this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
-        for (var i = 1; i <= 4; i++) {
-            if (this.directions[i].index === this.mainGame.moveabletile && this.directions[i] !== this.current && this.opposites[i] != this.current) {
-                if (this.checkDistance(i, target) < dist) {
-                    dir = i;
-                    dist = this.checkDistance(i, target);
-                }
-                this.lastIntersection = this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index);
-            }
-        }
-        dir != null ? this.checkDirection(dir) : console.log("Pathing Error");
-    }
+    this.chase(target);
 }
 
 //Blue ghost: Inky
 //Movement: Get tile1: 2 tiles away from pacman, get tile2: blinkys tile.
 //          Then, double vector from tile2 to tile1 to get tile3(target)                
 Ghost.prototype.moveInky = function() {
-    //Initialize the variables we need.
-    var dist = 10000; //Just set to a high number.
-    var dir = null;
     var target = 32; //Target 2 tiles in front of pacman
-
-    //Check if were at an intersection
-    //Then choose the tile with the closest distance to target
-    if (this.inplay && this.lastIntersection != this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
-        for (var i = 1; i <= 4; i++) {
-            if (this.directions[i].index === this.mainGame.moveabletile && this.directions[i] !== this.current && this.opposites[i] != this.current) {
-                if (this.checkDistance(i, target) < dist) {
-                    dir = i;
-                    dist = this.checkDistance(i, target);
-                }
-                this.lastIntersection = this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index);
-            }
-        }
-        dir != null ? this.checkDirection(dir) : console.log("Pathing Error");
-    }
+    this.chase(target);
 }
 
 //Yellow ghost: Clyde
 //Movement: Farther than 8 tiles away from Pacman => Same as Blinky
 //          Less than 8 tiles away from Pacman => Bottom-left of maze
 Ghost.prototype.moveClyde = function () {
+    var target = 0; //Target pacman
+    this.chase(target);
+}
+
+Ghost.prototype.target = function(x,y) {
     //Init variables
     var dist = 10000; //Just set to a high number.
     var dir = null;
-    var target = 0; //Target pacman
+    
+    //Check if were at an intersection
+    //Then choose the tile with the closest distance to target
+    if (this.inplay && this.lastIntersection != this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
+        for (var i = 1; i <= 4; i++) {
+            if (this.directions[i].index === this.mainGame.moveabletile && this.directions[i] !== this.current && this.opposites[i] != this.current) {
+                if (Phaser.Math.distance(this.directions[i].worldX, this.directions[i].worldY, x, y) < dist) { 
+                    dir = i;
+                    dist = Phaser.Math.distance(this.directions[i].worldX, this.directions[i].worldY, x, y); 
+                }
+                this.lastIntersection = this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index);
+            }
+        }
+        dir != null ? this.checkDirection(dir) : console.log("Pathing Error");
+    } 
+}
 
+Ghost.prototype.chase = function(target) {
+    //Init variables
+    var dist = 10000; //Just set to a high number.
+    var dir = null;
+    
     //Check if were at an intersection
     //Then choose the tile with the closest distance to target
     if (this.inplay && this.lastIntersection != this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
@@ -284,11 +265,8 @@ Ghost.prototype.moveClyde = function () {
     }
 }
 
-//Scatter movement
+//Scatter movement for all ghosts 
 Ghost.prototype.scatter = function() {
-    //Init variables
-    var dist = 10000; //Just set to a high number.
-    var dir = null;
     var x, y; //Target destinations
     
     //Upper right corner for Blinky
@@ -311,54 +289,42 @@ Ghost.prototype.scatter = function() {
         x = 8;
         y = 520;
     }
-       
-    //Check if were at an intersection
-    //Then choose the tile with the closest distance to target
-    if (this.inplay && this.lastIntersection != this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
-        for (var i = 1; i <= 4; i++) {
-            if (this.directions[i].index === this.mainGame.moveabletile && this.directions[i] !== this.current && this.opposites[i] != this.current) {
-                if (Phaser.Math.distance(this.directions[i].worldX, this.directions[i].worldY, x, y) < dist) { 
-                    dir = i;
-                    dist = Phaser.Math.distance(this.directions[i].worldX, this.directions[i].worldY, x, y); 
-                }
-                this.lastIntersection = this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index);
-            }
-        }
-        dir != null ? this.checkDirection(dir) : console.log("Pathing Error");
-    } 
+    
+    this.target(x,y);
 }
 
+//Movement phases (scatter+chase) and their timing
 Ghost.prototype.movement = function() {
-    //Get time
-    var time = this.mainGame.timer.seconds;
+    var time = this.mainGame.timer.seconds; //Get time
     
     if (time >= 0 && time <= 7) {           //First 7 seconds, scatter
         this.scatter();
     }
     else if (time > 7 && time <= 27) {      //Next 20 seconds, chase
-        this.allMove();
+        this.moveAll();
     }
     else if (time > 27 && time <= 34) {     //Next 7 seconds, scatter
         this.scatter();
     }
     else if (time > 34 && time <= 54) {     //Next 20 seconds, chase
-        this.allMove();
+        this.moveAll();
     }
     else if (time > 54 && time <= 59) {     //Next 5 seconds, scatter
         this.scatter();
     }
     else if (time > 59 && time <= 79) {     //Next 20 seconds, chase
-        this.allMove();
+        this.moveAll();
     }
     else if (time > 79 && time <= 84) {     //Next 5 seconds, scatter
         this.scatter();
     }
     else {                                  //Permanent scatter
-        this.allMove();
+        this.moveAll();
     }  
 }
 
-Ghost.prototype.allMove = function() {
+//To specify specific ghost movement
+Ghost.prototype.moveAll = function() {
     if (this.moveType === 0) {
         this.moveBlinky();
     }
@@ -370,6 +336,62 @@ Ghost.prototype.allMove = function() {
     }
     else if (this.moveType === 3) {
         this.moveClyde();
+    }
+}
+
+//Ghost goes back to home after being eaten
+Ghost.prototype.goHome = function() {
+    var homeX = 227;    //X-coordinate1 front of home
+    var homeX2 = 226;   //X-coordinate2 front of home
+    var homeY = 184;    //Y-coordinate  front of home
+    
+    this.target(homeX,homeY);   //Go back home
+    this.timerGhost.start();    //Start timer
+    
+    /*  PROBLEMATIC CODE:
+        Eating more than 1 pill causes ghosts to tween back
+        into the home unexpectedly
+    */
+    //When ghost reaches coordinate in front of home, tween inside
+    if ( (this.x === homeX || this.x === homeX2) && this.y === homeY ) {
+            //Moving animation in pen
+            var tweenA = this.game.add.tween(this).to({ x: 225, y: 232 }, 1000, Phaser.Easing.Linear.None);
+            if (this.moveType === 0 || this.moveType === 1) {
+                var tweenB = this.game.add.tween(this).to({ x: 226, y: 232 }, 1000, Phaser.Easing.Linear.None);  
+                tweenA.chain(tweenB);
+            }
+            else if (this.moveType === 2) {
+                var tweenB = this.game.add.tween(this).to({ x: 192, y: 232 }, 1000, Phaser.Easing.Linear.None);
+                tweenA.chain(tweenB);
+            }
+            else if (this.moveType === 3) {
+                var tweenB = this.game.add.tween(this).to({ x: 256, y: 232 }, 1000, Phaser.Easing.Linear.None);
+                tweenA.chain(tweenB);
+            }
+            tweenB.onComplete.add(this.start, this);
+            tweenA.start();
+
+            this.speed = 0; //Make ghost stop moving atm
+        }
+    
+    //After 7 seconds pass, ghost will leave home and resume normal play
+    var sec = 7;
+    if (this.timerGhost.seconds > sec) {
+        this.speed = 150;    //Assign speed back to normal
+        this.leaveHouse();
+    }
+}
+
+//When ghost is scared
+Ghost.prototype.ifScared = function() {
+    //Scared animations
+    if (this.scared) {
+        if (!this.scaredFlash) {
+            this.animations.play('scare');
+        }
+        else {
+            this.animations.play('scare2'); //Signals end of Pacman invincibility
+        }
     }
 }
 
@@ -395,9 +417,18 @@ Ghost.prototype.update = function () {
     this.directions[3] = this.mainGame.map.getTileAbove(this.mainGame.layer.index, this.marker.x, this.marker.y);
     this.directions[4] = this.mainGame.map.getTileBelow(this.mainGame.layer.index, this.marker.x, this.marker.y);
 
+    //Check if ghost is scared
+    this.ifScared();
+    
     //Do movement when in bounds
     if (this.inplay && this.x > 16 && this.x < 432) {    
-        this.movement();
+        if (this.scared) {
+            //Enter code to run here
+            this.movement(); //Temporary
+        }
+        else {
+            this.movement();
+        }
     }
 
     if (this.turning !== Phaser.NONE) {

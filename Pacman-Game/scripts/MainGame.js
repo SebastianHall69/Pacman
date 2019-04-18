@@ -34,6 +34,7 @@ MainGame.prototype = {
     preload: function () {
         
         this.load.image('dot', 'assets/dot.png');
+        this.load.image('pill', 'assets/pill.png');
         this.load.image('tiles', 'assets/pacman-tiles.png');
         this.load.spritesheet('pacman', 'assets/pacman.png', 32, 32);
         this.load.spritesheet('ghosts', 'assets/ghosts.png', 32, 32);
@@ -42,6 +43,7 @@ MainGame.prototype = {
         //Load Sound effects
         this.load.audio('die', 'assets/audio/die.mp3');
         this.load.audio('eat', 'assets/audio/eat.mp3');
+        this.load.audio('eatPill', 'assets/audio/eat_pill.mp3');
         
     },
 
@@ -53,14 +55,16 @@ MainGame.prototype = {
         this.layer = this.map.createLayer('Pacman');
 
         this.dots = this.add.physicsGroup();
+        this.pills = this.add.physicsGroup();
 
         //Create sprites from the dots (tile index 7), replace original tile with moveabletile(index 14)
         this.map.createFromTiles(7, this.moveabletile, 'dot', this.layer, this.dots);
+        this.map.createFromTiles(36, this.moveabletile, 'pill', this.layer, this.pills);
 
         //  The dots will need to be offset by 6px to put them back in the middle of the grid
         this.dots.setAll('x', 6, false, false, 1);
         this.dots.setAll('y', 6, false, false, 1);
-
+        
         //  Pacman should collide with everything except the safe tile
         this.map.setCollisionByExclusion([this.moveabletile], true, this.layer);
 
@@ -86,6 +90,7 @@ MainGame.prototype = {
         //Add sound effects
         this.add.audio('die', 'assets/audio/die.wav');
         this.add.audio('eat', 'assets/audio/eat.mp3');
+        this.add.audio('eatPill', 'assets/audio/eat_pill.mp3');
         
     },
 

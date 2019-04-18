@@ -9,6 +9,10 @@ Pacman = function (game, mainGame, x, y) {
     this.opposites = [Phaser.NONE, Phaser.RIGHT, Phaser.LEFT, Phaser.DOWN, Phaser.UP];
     this.current = Phaser.NONE;
     this.turning = Phaser.NONE;
+    
+    opTimer = game.time.create(false);  //Timer for pills
+    this.invincible = false;            //Invincible state
+    this.end = false;                   //Flag - pacman lose life
 
     this.game = game;
     this.mainGame = mainGame;
@@ -103,7 +107,6 @@ Pacman.prototype.move = function (direction) {
 }
 
 Pacman.prototype.turn = function () {
-
     var cx = Math.floor(this.x);
     var cy = Math.floor(this.y);
 
@@ -120,7 +123,6 @@ Pacman.prototype.turn = function () {
     this.move(this.turning);
     this.turning = Phaser.NONE;
     return true;
-
 }
 
 Pacman.prototype.eatDot = function (pacman, dot) {
@@ -132,18 +134,70 @@ Pacman.prototype.eatDot = function (pacman, dot) {
     this.game.sound.play('eat');
 }
 
-Pacman.prototype.die = function () {
-    this.scale.x = 1;
-    this.angle = 0;
-    this.play('die');
-    //this.game.sound.play('die');    //Sound effect
-    this.dead = true;
-    this.body.velocity.y = 0;
-    this.body.velocity.x = 0;
-    this.game.time.events.add(Phaser.Timer.SECOND*4, function(){ game.state.restart() }, this);
+//When pacman eats energizer/power pill
+Pacman.prototype.eatPill = function (pacman, pill) {
+    opTimer = game.time.create(false);  //Reset timer if function called again
+    opTimer.start();                    //Start timer
+
+    pill.kill();                //Get rid of pill
+    this.mainGame.score += 50;  //Increase score counter by 50
+    this.invincible = true;     //Invincible state ON
+    
+    //Ghost status scared ON
+    this.mainGame.blinky.scared = true;
+    this.mainGame.pinky.scared = true;
+    this.mainGame.inky.scared = true;
+    this.mainGame.clyde.scared = true;
+    //In case player gets more than 1 pill, reset animation
+    this.mainGame.blinky.scaredFlash = false;
+    this.mainGame.pinky.scaredFlash = false;
+    this.mainGame.inky.scaredFlash = false;
+    this.mainGame.clyde.scaredFlash = false;
+    
+    this.game.sound.play('eatPill');    //Play soundFX
 }
 
-Pacman.prototype.update = function () {
+//Check invincible state, if on, turn off after x seconds
+Pacman.prototype.ifInvincible = function() {
+    if (this.invincible) {
+        var n = 10; //Seconds pacman should be invincible
+        if (opTimer.seconds > n) {
+            this.invincible = false;    //Pacman is vulnerable again
+            this.mainGame.blinky.scared = false;
+            this.mainGame.pinky.scared = false;
+            this.mainGame.inky.scared = false;
+            this.mainGame.clyde.scared = false;
+            this.mainGame.blinky.scaredFlash = false;
+            this.mainGame.pinky.scaredFlash = false;
+            this.mainGame.inky.scaredFlash = false;
+            this.mainGame.clyde.scaredFlash = false;
+            opTimer.destroy();
+        }
+        //Ghosts will have animation signaling end of invincible phase
+        if (opTimer.seconds > n-2) {
+            this.mainGame.blinky.scaredFlash = true;
+            this.mainGame.pinky.scaredFlash = true;
+            this.mainGame.inky.scaredFlash = true;
+            this.mainGame.clyde.scaredFlash = true;
+        }
+    }
+}
+
+Pacman.prototype.die = function () {
+    if (!this.end) {    //Flag added to register die function only once
+        this.scale.x = 1;
+        this.angle = 0;
+        this.play('die');
+        this.game.sound.play('die');    //Sound effect
+        this.dead = true;
+        this.body.velocity.y = 0;
+        this.body.velocity.x = 0;
+        this.game.time.events.add(Phaser.Timer.SECOND*4, function(){ game.state.restart() }, this);
+        this.end = true;
+    } 
+}
+
+Pacman.prototype.update = function () { 
     //Corridor that goes to other side of the map
     if (this.x < -8) {
         this.x = 452;
@@ -151,16 +205,28 @@ Pacman.prototype.update = function () {
     else if (this.x > 452) {
         this.x = -8;
     }
-
+    
     //Check for collisions with tiles and dots.
     this.mainGame.physics.arcade.collide(this, this.mainGame.layer);
     this.mainGame.physics.arcade.overlap(this, this.mainGame.dots, this.eatDot, null, this);
+    this.mainGame.physics.arcade.overlap(this, this.mainGame.pills, this.eatPill, null, this);
 
+    //Check if pacman is invincible
+    this.ifInvincible();
+    
     //Check for collisions with ghosts
-    this.mainGame.physics.arcade.overlap(this, this.mainGame.blinky, this.die, null, this);
-    this.mainGame.physics.arcade.overlap(this, this.mainGame.pinky, this.die, null, this);
-    this.mainGame.physics.arcade.overlap(this, this.mainGame.inky, this.die, null, this);
-    this.mainGame.physics.arcade.overlap(this, this.mainGame.clyde, this.die, null, this);
+    if (!this.invincible) { //If pacman not invincible, dead
+        this.mainGame.physics.arcade.overlap(this, this.mainGame.blinky, this.die, null, this);
+        this.mainGame.physics.arcade.overlap(this, this.mainGame.pinky, this.die, null, this);
+        this.mainGame.physics.arcade.overlap(this, this.mainGame.inky, this.die, null, this);
+        this.mainGame.physics.arcade.overlap(this, this.mainGame.clyde, this.die, null, this);
+    }
+    else {
+        //Pacman can eat ghosts
+        //If eaten, change ghost animation to only eyes, ghost goes back home
+        //Come back out after x seconds
+        //this.mainGame.physics.arcade.overlap(this, this.mainGame.blinky, this.mainGame.blinky.goHome, null, this);
+    }
 
     this.marker.x = this.mainGame.math.snapToFloor(Math.floor(this.x), this.mainGame.gridsize) / this.mainGame.gridsize;
     this.marker.y = this.mainGame.math.snapToFloor(Math.floor(this.y), this.mainGame.gridsize) / this.mainGame.gridsize;
