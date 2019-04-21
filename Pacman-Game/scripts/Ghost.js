@@ -339,6 +339,29 @@ Ghost.prototype.moveAll = function() {
     }
 }
 
+//Movement of ghost when frightened (slower speed, random movement)
+Ghost.prototype.scareMove = function() {
+    //Slow speed of ghost
+    this.speed = 50;
+    
+    //Init variables
+    var dirs = new Array();
+
+    //Check if were at an intersection
+    //Then choose a random tile
+    if (this.inplay && this.lastIntersection !== this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index)) {
+        for (var i = 1; i <= 4; i++) {
+            if (this.directions[i].index === this.mainGame.moveabletile && this.directions[i] !== this.current && this.opposites[i] !== this.current) {
+                dirs.push(i);
+                this.lastIntersection = this.mainGame.map.getTile(this.marker.x, this.marker.y, this.mainGame.layer.index);
+            }
+        }
+        //Choose direction at random
+        var index = Math.floor((Math.random() * dirs.length));
+        dirs[index] !== null ? this.checkDirection(dirs[index]) : console.log("Pathing Error");
+    }
+}
+
 //Ghost goes back to home after being eaten
 Ghost.prototype.goHome = function() {
     var homeX = 227;    //X-coordinate1 front of home
@@ -393,6 +416,9 @@ Ghost.prototype.ifScared = function() {
             this.animations.play('scare2'); //Signals end of Pacman invincibility
         }
     }
+    else {
+        this.speed = 150;
+    }
 }
 
 Ghost.prototype.update = function () {
@@ -424,7 +450,7 @@ Ghost.prototype.update = function () {
     if (this.inplay && this.x > 16 && this.x < 432) {    
         if (this.scared) {
             //Enter code to run here
-            this.movement(); //Temporary
+            this.scareMove(); //Temporary
         }
         else {
             this.movement();
