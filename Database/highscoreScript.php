@@ -3,7 +3,7 @@
 require_once('../LoginPage/config.php');
 
 //Declare variables
-$server = 'mischiefcrew.com';//Server name
+$server = 'localhost';//Server name
 $username = 'mischie5_public';//Server username
 $password = 'pacmangroup';//Server password
 $db = 'mischie5_pacman';//Database name

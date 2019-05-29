@@ -3,7 +3,7 @@
 require_once('config.php');
 
 //Declare variables
-$server = 'mischiefcrew.com';//Server name
+$server = 'localhost';//Server name
 $username = 'mischie5_public';//Server username
 $password = 'pacmangroup';//Server password
 $db = 'mischie5_pacman';//Database name
@@ -18,7 +18,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {//Process input from user
     if(isSet($_POST["loginUsername"])) {
         //Search database for username provided
         $uname = $_POST["loginUsername"];
-        $sql = "SELECT `user_id`, `user_username`, `user_password` FROM `pacman`.`entity_users` WHERE `user_username`='$uname'";
+        $sql = "SELECT `user_id`, `user_username`, `user_password` FROM `mischie5_pacman`.`entity_users` WHERE `user_username`='$uname'";
         $result = $conn->query($sql);
 
         //If login was found
@@ -52,7 +52,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {//Process input from user
         $pword = $_POST["signUpPassword"];
 
         //Check if username already exists
-        $sql = "SELECT `user_id`, `user_username`, `user_password` FROM `pacman`.`entity_users` WHERE `user_username`='$uname'";
+        $sql = "SELECT `user_id`, `user_username`, `user_password` FROM `mischie5_pacman`.`entity_users` WHERE `user_username`='$uname'";
         $result = $conn->query($sql);
         
         //If username is found
@@ -65,7 +65,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {//Process input from user
                     "}" .
                 "</script>";
         } else {
-            $sql = "INSERT INTO `pacman`.`entity_users` (`user_username`, `user_password`) VALUES ('$uname', '$pword');";
+            $sql = "INSERT INTO `mischie5_pacman`.`entity_users` (`user_username`, `user_password`) VALUES ('$uname', '$pword');";
             $conn->query($sql);
             $_SESSION["username"] = $uname;
             $_SESSION["password"] = $pword;
