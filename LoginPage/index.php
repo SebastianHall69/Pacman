@@ -1,33 +1,9 @@
 <!DOCTYPE html>
 <?php
-    //include("config.php");    //Establishes connection to database
-    session_start();            //Starts session
-    
-    //If info has been sent through post to server
-    if($_SERVER["REQUEST_METHOD"] == "POST"){
-        
-        //If login was chosen
-        if(isSet($_POST["loginUsername"])) {
-            echo "Login chosen<br/>";
-            //Retrieves username and password through post
-            $username = $_POST["loginUsername"];
-            $password = $_POST["loginPassword"];
-            
-            //Validate through database with sql
-            
-            //If successul
-                //Set username and password in session
-                $_SESSION["loginUsername"] = $username;
-                $_SESSION["loginPassword"] = $password;
-            
-        }//If sign up is chosen
-        else if(isSet($_POST["signUpUsername"])) {
-            echo "Signup chosen<br/>";
-        }
-        
-        //If login information is valid send to page
-        header("location: login.php");//Sends to php page after login
+    if(session_status() == PHP_SESSION_NONE) {
+        session_start();//Starts session
     }
+    require_once('login.php');
 ?>
 <html lang="en-US">
 
@@ -73,10 +49,10 @@
                 <input type="text" id="signUpUsername" name="signUpUsername" title="1-16 char alphanumerical" />
                 <span class="errMsg">&nbsp;</span><br/>
                 <label for="signUpPassword">Password</label><br/>
-                <input type="text" id="signUpPassword" name="signUpPassword" title="4-16 char alphanumerical" />
+                <input type="password" id="signUpPassword" name="signUpPassword" title="4-16 char alphanumerical" />
                 <span class="errMsg">&nbsp;</span><br/>
                 <label for="confirmPassword">Confirm Password</label><br/>
-                <input type="text" id="confirmPassword" name="confirmPassword" title="Same as above" /><br/><br/>
+                <input type="password" id="confirmPassword" name="confirmPassword" title="Same as above" /><br/><br/>
                 <input type="submit" value="Sign Up" /><br/>
             </form>
         </div>

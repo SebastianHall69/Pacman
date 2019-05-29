@@ -1,8 +1,13 @@
-/*Sets up connection with database*/
 <?php
-    define('DB_SEVER', 'localhost:3036');   /*Server*/
-    define('DB_USERNAME', 'root');          /*User*/
-    define('DB_PASSWORD', '');  /*Password*/
-    define('DB_DATABASE', 'database');      //*Database name*/
-    $db = mysqlil_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);    /*Connects to database*/
+function connDB($server, $username, $password, $db){
+    //Create database connection
+    $conn = new mysqli($server, $username, $password, $db);
+    
+    //Check for errors and return connection or echo failure
+    if($conn->connect_error) {//If connection error echo
+        echo "Connection Failed: " . $conn->connect_error;
+    } else {//Else return connection
+        return $conn;
+    }
+}
 ?>
