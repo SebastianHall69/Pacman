@@ -3,10 +3,10 @@
 require_once('config.php');
 
 //Declare variables
-$server = 'localhost';//Server name
-$username = 'root';//Server username
-$password = '';//Server password
-$db = 'pacman';//Database name
+$server = 'mischiefcrew.com';//Server name
+$username = 'mischie5_public';//Server username
+$password = 'pacmangroup';//Server password
+$db = 'mischie5_pacman';//Database name
 $sql;//SQL query to be executed
 
 //Create connection to database

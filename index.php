@@ -46,6 +46,6 @@ if(!isSet($_SESSION["username"])) {
     <div id="signOut" class="sideArea"><p>Sign Out Here</p></div>
     
     <!--Main Game Iframe here-->
-    <iframe id="game"></iframe>
+    <iframe id="game" src=game/game.html></iframe>
 </body>
 </html>

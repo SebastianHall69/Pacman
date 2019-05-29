@@ -3,10 +3,10 @@
 require_once('../LoginPage/config.php');
 
 //Declare variables
-$server = "localhost";
-$username = "root";
-$password = "";
-$db = "pacman";
+$server = 'mischiefcrew.com';//Server name
+$username = 'mischie5_public';//Server username
+$password = 'pacmangroup';//Server password
+$db = 'mischie5_pacman';//Database name
 $conn = connDB($server, $username, $password, $db);
 $sql = "SELECT `user_username`, `highscore_score` FROM `entity_users`, `entity_highscore`, `xref_user_highscore` ORDER BY `entity_highscore`.`highscore_score` DESC LIMIT 10;";
 
