@@ -1,4 +1,8 @@
 <!DOCTYPE HTML>
+<?php if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <html>
 <head>
     <title>Pacman</title>
@@ -28,6 +32,8 @@
 <body>
 
     <script type="text/javascript">
+    var user_id='<?php echo $_SESSION['id'];?>';
+    console.log("User ID: " + user_id);
 
     var game = new Phaser.Game(448, 496, Phaser.AUTO, 'pacman');
     game.state.add('Game', MainGame, true);
