@@ -19,23 +19,34 @@ if(!isSet($_SESSION["username"])) {
             color: black;
             padding: 1vw;
         }
-        
-        #highScore {
+
+        iframe#highScore {
             float: right;
             width: 17vw;
+            background-color: black;
+            border: none;
         }
-        
-        #signOut {
+
+        div#signOut {
             float: left;
-            width: 7vw;
+            width: 10vw;
+            padding: 0;
+            background-color: black;
         }
         
-        #game {
+        iframe#game {
             width: 50vw;
             height: 50vw;
             margin: auto;
+            position: fixed;
+            right: 25%;
         }
     </style>
+    <script>
+		function focusGame() {
+            document.getElementById("game").focus();
+        }
+	</script>
 </head>
 
 <body>
@@ -43,13 +54,23 @@ if(!isSet($_SESSION["username"])) {
     <iframe id="highScore" class="sideArea" src="Database/highscoreScript.php" ></iframe>
     
     <!--Sign Out Area Here-->
-    <div id="signOut" class="sideArea"><p>Sign Out Here</p></div>
+    <div id="signOut" class="sideArea">
+        <?php
+        if($_SERVER["REQUEST_METHOD"] == "POST") {
+            unset($_SESSION["id"]);
+            unset($_SESSION["username"]);
+            unset($_SESSION["password"]);
+            echo "<script> parent.window.location.href='LoginPage'; </script>";
+        }
+        ?>
+        <form method='post' target='_self'>
+            <input type='submit' value='Sign Out' />
+        </form>
+    </div>
     
     <!--Main Game Iframe here-->
-    <iframe id="game" src=game/game.php></iframe>
+    <iframe id="game" src="game/game.php" onload="focusGame();" ></iframe>
 	
-	<script>
-		window.onload = document.getElementById("game").focus();
-	</script>
+	
 </body>
 </html>

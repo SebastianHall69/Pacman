@@ -18,13 +18,13 @@ USE `pacman`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `highscore`
+-- Table structure for table `entity_highscore`
 --
 
-DROP TABLE IF EXISTS `highscore`;
+DROP TABLE IF EXISTS `entity_highscore`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `highscore` (
+CREATE TABLE `entity_highscore` (
   `highscore_id` int(11) NOT NULL AUTO_INCREMENT,
   `highscore_score` int(11) NOT NULL,
   PRIMARY KEY (`highscore_id`)
@@ -32,22 +32,22 @@ CREATE TABLE `highscore` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `highscore`
+-- Dumping data for table `entity_highscore`
 --
 
-LOCK TABLES `highscore` WRITE;
-/*!40000 ALTER TABLE `highscore` DISABLE KEYS */;
-/*!40000 ALTER TABLE `highscore` ENABLE KEYS */;
+LOCK TABLES `entity_highscore` WRITE;
+/*!40000 ALTER TABLE `entity_highscore` DISABLE KEYS */;
+/*!40000 ALTER TABLE `entity_highscore` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `users`
+-- Table structure for table `entity_users`
 --
 
-DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `entity_users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `users` (
+CREATE TABLE `entity_users` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_username` varchar(20) NOT NULL,
   `user_password` varchar(20) NOT NULL,
@@ -56,12 +56,12 @@ CREATE TABLE `users` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `users`
+-- Dumping data for table `entity_users`
 --
 
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+LOCK TABLES `entity_users` WRITE;
+/*!40000 ALTER TABLE `entity_users` DISABLE KEYS */;
+/*!40000 ALTER TABLE `entity_users` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -76,8 +76,8 @@ CREATE TABLE `xref_user_highscore` (
   `highscore_id` int(11) NOT NULL,
   KEY `user_id` (`user_id`),
   KEY `highscore_id` (`highscore_id`),
-  CONSTRAINT `xref_user_highscore_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
-  CONSTRAINT `xref_user_highscore_ibfk_2` FOREIGN KEY (`highscore_id`) REFERENCES `highscore` (`highscore_id`)
+  CONSTRAINT `xref_user_highscore_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `entity_users` (`user_id`),
+  CONSTRAINT `xref_user_highscore_ibfk_2` FOREIGN KEY (`highscore_id`) REFERENCES `entity_highscore` (`highscore_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
