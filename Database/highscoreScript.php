@@ -3,6 +3,8 @@
         <meta charset="utf-8" />
         <style>
             table {
+                margin: 0;
+                margin-top: 30px;
                 color: yellow;
                 font-size: 1.5em;
             }
@@ -10,6 +12,9 @@
                 color: yellow;
                 font-size: 2.5em;
                 margin-bottom: 0.75em;
+            }
+            td {
+                padding-right: 40px;
             }
         </style>
     </head>
@@ -25,7 +30,7 @@
         $password = 'pacmangroup';//Server password
         $db = 'mischie5_pacman';//Database name
         $conn = connDB($server, $username, $password, $db);
-        $sql = "SELECT `entity_users`.`user_username`, `entity_highscore`.`highscore_score` FROM `mischie5_pacman`.`xref_user_highscore` AS `xref_user_highscore`, `mischie5_pacman`.`entity_users` AS `entity_users`, `mischie5_pacman`.`entity_highscore` AS `entity_highscore` WHERE `xref_user_highscore`.`user_id` = `entity_users`.`user_id` AND `xref_user_highscore`.`highscore_id` = `entity_highscore`.`highscore_id` ORDER BY `entity_highscore`.`highscore_score` DESC";
+        $sql = "SELECT `entity_users`.`user_username`, `entity_highscore`.`highscore_score` FROM `mischie5_pacman`.`xref_user_highscore` AS `xref_user_highscore`, `mischie5_pacman`.`entity_users` AS `entity_users`, `mischie5_pacman`.`entity_highscore` AS `entity_highscore` WHERE `xref_user_highscore`.`user_id` = `entity_users`.`user_id` AND `xref_user_highscore`.`highscore_id` = `entity_highscore`.`highscore_id` ORDER BY `entity_highscore`.`highscore_score` DESC LIMIT 10";
 
         //Run sql query
         if($result = $conn->query($sql)) {

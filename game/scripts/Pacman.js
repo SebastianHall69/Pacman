@@ -9,7 +9,6 @@ Pacman = function (game, mainGame, x, y) {
     this.opposites = [Phaser.NONE, Phaser.RIGHT, Phaser.LEFT, Phaser.DOWN, Phaser.UP];
     this.current = Phaser.NONE;
     this.turning = Phaser.NONE;
-    this.lives = 3;
     
     opTimer = game.time.create(false);  //Timer for pills
     this.invincible = false;            //Invincible state
@@ -63,6 +62,7 @@ Pacman.prototype.checkDirection = function (turnTo) {
     if (this.turning === turnTo || this.directions[turnTo] === null || this.directions[turnTo].index !== this.mainGame.moveabletile) {
         //  Invalid direction if they're already set to turn that way
         //  Or there is no tile there, or the tile isn't index 1 (a floor tile)
+        console.log("returning nothing checkdir");
         return;
     }
 
@@ -199,8 +199,8 @@ Pacman.prototype.ifInvincible = function() {
 
 Pacman.prototype.die = function () {
     if (!this.end) {    //Flag added to register die function only once
-        this.lives--;
-        console.log("Lives: " + this.lives);
+        this.mainGame.lives--;
+        console.log("Lives: " + this.mainGame.lives);
         this.scale.x = 1;
         this.angle = 0;
         this.play('die');
@@ -208,6 +208,14 @@ Pacman.prototype.die = function () {
         this.dead = true;
         this.body.velocity.y = 0;
         this.body.velocity.x = 0;
+        
+        //Check if no more lives and upload score
+        if (this.mainGame.lives < 0) {
+            UploadScore(user_id, this.mainGame.score);
+            this.mainGame.lives = 3;
+            this.mainGame.score = 0;
+        }
+        
         this.game.time.events.add(Phaser.Timer.SECOND*4, function(){ game.state.restart() }, this);
         this.end = true;
     } 

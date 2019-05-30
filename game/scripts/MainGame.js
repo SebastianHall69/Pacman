@@ -15,12 +15,12 @@ var MainGame = function (game) {
 
     //Score
     this.score = 0;
+    this.lives = 3;
 };
 
 MainGame.prototype = {
 
     init: function () {
-
         this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         this.scale.pageAlignHorizontally = true;
         this.scale.pageAlignVertically = true;
@@ -95,6 +95,6 @@ MainGame.prototype = {
     },
 
     update: function () {
-        document.getElementById("score").innerHTML="Score: " + this.score;
+        document.getElementById("score").innerHTML="Score: " + this.score + " Lives: " + this.lives;
     }
 };

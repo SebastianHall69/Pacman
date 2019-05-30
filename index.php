@@ -15,14 +15,15 @@ if(!isSet($_SESSION["username"])) {
     <style>
         .sideArea {
             background-color: white;
-            margin: 5vw;
+            margin: 3vw;
             color: black;
             padding: 1vw;
         }
 
         iframe#highScore {
             float: right;
-            width: 17vw;
+            width: 20vw;
+            height: 50vh;
             background-color: black;
             border: none;
         }
@@ -40,6 +41,7 @@ if(!isSet($_SESSION["username"])) {
             margin: auto;
             position: fixed;
             right: 25%;
+            border: none;
         }
     </style>
     <script>

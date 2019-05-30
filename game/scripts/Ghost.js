@@ -367,6 +367,7 @@ Ghost.prototype.scareMove = function() {
 
 //Ghost goes back to home after being eaten
 Ghost.prototype.goHome = function() {
+    if (this.dead === false) {
     var homeX = 227;    //X-coordinate1 front of home
     var homeX2 = 226;   //X-coordinate2 front of home
     var homeY = 184;    //Y-coordinate  front of home
@@ -376,6 +377,8 @@ Ghost.prototype.goHome = function() {
     this.dead = true;
     //this.speed = 600;
     this.play("dead");
+    
+    this.mainGame.score += 200;
     
     //this.target(homeX,homeY);   //Go back home
     this.timerGhost.start();    //Start timer
@@ -403,6 +406,7 @@ Ghost.prototype.goHome = function() {
             tweenA.start();
 
             this.speed = 0; //Make ghost stop moving atm
+    }
 };
 
 Ghost.prototype.resetDeathDelay = function() {

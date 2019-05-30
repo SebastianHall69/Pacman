@@ -17,14 +17,20 @@
         }
         div {
             width:85vh;
-            height:100%;
+            height:90%;
             background-size:cover;
             overflow:hidden;
             margin-left: auto ;
             margin-right: auto ;
         }
+        #score {
+            margin: auto;
+            vertical-align: center;
+        }
     </style>
     <script src="//cdn.jsdelivr.net/phaser/2.2.2/phaser.min.js"></script>
+    <script src="scripts/jquery-1.8.3.min.js"></script>
+    <script src="scripts/AJAX.js"></script>
     <script src="scripts/Pacman.js"></script>
     <script src="scripts/Ghost.js"></script>
     <script src="scripts/MainGame.js"></script>
@@ -40,7 +46,7 @@
 
     </script>
 
-<p id="score">This text will change</p>
+<p id="score">Game Loading</p>
 <div id="pacman"></div>
 
 </body>
