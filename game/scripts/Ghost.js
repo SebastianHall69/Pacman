@@ -179,7 +179,9 @@ Ghost.prototype.checkDistance = function (direction, tileCor) {
     return Phaser.Math.distance(this.directions[direction].worldX, this.directions[direction].worldY, destX, destY); 
 }
 
-Ghost.prototype.leaveHouse = function () {
+Ghost.prototype.leaveHouse = function() {
+    this.speed = 150;    //Assign speed to normal
+    
     var tweenA = this.game.add.tween(this).to({ x: 224, y: 232 }, 1000, Phaser.Easing.Linear.None);
     var tweenB = this.game.add.tween(this).to({ x: 224, y: 184 }, 1000, Phaser.Easing.Linear.None);
     tweenA.chain(tweenB);
@@ -188,7 +190,7 @@ Ghost.prototype.leaveHouse = function () {
 }
 
 //Determining direction of movement for ghost at start of game
-Ghost.prototype.start = function () {
+Ghost.prototype.start = function() {
     //Ghost always moves left @ at beginning
     this.move(Phaser.LEFT);
     this.inplay = true;
@@ -196,7 +198,7 @@ Ghost.prototype.start = function () {
 
 //Red ghost: Blinky
 //Movement: Chases pacman directly
-Ghost.prototype.moveBlinky = function () {
+Ghost.prototype.moveBlinky = function() {
     var target = 0; //Target Pacman
     this.chase(target);
 }
@@ -242,7 +244,7 @@ Ghost.prototype.target = function(x,y) {
             }
         }
         dir != null ? this.checkDirection(dir) : console.log("Pathing Error");
-    } 
+    }
 }
 
 Ghost.prototype.chase = function(target) {
@@ -296,6 +298,8 @@ Ghost.prototype.scatter = function() {
 
 //Movement phases (scatter+chase) and their timing
 Ghost.prototype.movement = function() {
+    this.speed = 150;
+    
     var time = this.mainGame.timer.seconds; //Get time
     
     if (time >= 0 && time <= 7) {           //First 7 seconds, scatter
@@ -365,64 +369,62 @@ Ghost.prototype.scareMove = function() {
     }
 }
 
-//Ghost goes back to home after being eaten
+//When pacman eats ghost, change settings
 Ghost.prototype.goHome = function() {
     if (this.dead === false) {
+        this.animations.play("dead");       //Change sprite to 'dead'
+        this.game.sound.play('eatGhost');   //Play soundFX
+        this.mainGame.score += 200;         //Increase score counter
+        
+        this.scared = false;
+        this.dead = true;
+        this.speed = 300;
+    }
+};
+
+//Ghost movement back home after being eaten
+Ghost.prototype.moveToHome = function() {
     var homeX = 227;    //X-coordinate1 front of home
     var homeX2 = 226;   //X-coordinate2 front of home
     var homeY = 184;    //Y-coordinate  front of home
     
-    //Change sprite to dead.
-    console.log("Dead");
-    this.dead = true;
-    //this.speed = 600;
-    this.play("dead");
-    
-    this.mainGame.score += 200;
-    
-    //this.target(homeX,homeY);   //Go back home
-    this.timerGhost.start();    //Start timer
-    
-    /*  PROBLEMATIC CODE:
-        Eating more than 1 pill causes ghosts to tween back
-        into the home unexpectedly
-    */
-    //When ghost reaches coordinate in front of home, tween inside
-            //Moving animation in pen
-            var tweenA = this.game.add.tween(this).to({ x: 225, y: 232 }, 1000, Phaser.Easing.Linear.None);
-            if (this.moveType === 0 || this.moveType === 1) {
-                var tweenB = this.game.add.tween(this).to({ x: 226, y: 232 }, 1000, Phaser.Easing.Linear.None);  
-                tweenA.chain(tweenB);
-            }
-            else if (this.moveType === 2) {
-                var tweenB = this.game.add.tween(this).to({ x: 192, y: 232 }, 1000, Phaser.Easing.Linear.None);
-                tweenA.chain(tweenB);
-            }
-            else if (this.moveType === 3) {
-                var tweenB = this.game.add.tween(this).to({ x: 256, y: 232 }, 1000, Phaser.Easing.Linear.None);
-                tweenA.chain(tweenB);
-            }
-            tweenB.onComplete.add(this.resetDeathDelay, this);
-            tweenA.start();
+    //Go back home, target home tile
+    this.target(homeX2,homeY);
+    this.target(homeX,homeY);
 
-            this.speed = 0; //Make ghost stop moving atm
+    //When ghost reaches coordinate in front of home, tween inside
+    if ( (this.x === homeX || this.x === homeX2) && this.y===homeY) {        
+        //Moving animation in pen
+        var tweenA = this.game.add.tween(this).to({ x: 225, y: 232 }, 1000, Phaser.Easing.Linear.None);
+        if (this.moveType === 0 || this.moveType === 1) {
+            var tweenB = this.game.add.tween(this).to({ x: 226, y: 232 }, 1000, Phaser.Easing.Linear.None);  
+            tweenA.chain(tweenB);
+        }
+        else if (this.moveType === 2) {
+            var tweenB = this.game.add.tween(this).to({ x: 192, y: 232 }, 1000, Phaser.Easing.Linear.None);
+            tweenA.chain(tweenB);
+        }
+        else if (this.moveType === 3) {
+            var tweenB = this.game.add.tween(this).to({ x: 256, y: 232 }, 1000, Phaser.Easing.Linear.None);
+            tweenA.chain(tweenB);
+        }
+        
+        this.speed = 0; //Stop ghost from moving
+        tweenA.onComplete.add(this.resetDeath, this);
+        tweenA.start();
     }
 };
 
-Ghost.prototype.resetDeathDelay = function() {
-    console.log("Resetting death..");
-    this.play("down");
-    this.mainGame.time.events.add(Phaser.Timer.SECOND * 7, this.resetDeath, this);
-}
-
-Ghost.prototype.resetDeath = function () {
+Ghost.prototype.resetDeath = function() {
     console.log("Reset");
+    this.play('up');
+
     this.inplay = false;
     this.dead = false;
-    this.speed = 150;    //Assign speed back to normal
-    this.play("up");
-    this.leaveHouse();
-}
+
+    //Amount of time to wait until ghost comes outside of home after dying
+    this.mainGame.time.events.add(Phaser.Timer.SECOND * 5, this.leaveHouse, this);
+};
 
 //When ghost is scared
 Ghost.prototype.ifScared = function() {
@@ -435,10 +437,7 @@ Ghost.prototype.ifScared = function() {
             this.animations.play('scare2'); //Signals end of Pacman invincibility
         }
     }
-    else if (!this.dead) {
-        this.speed = 150;
-    }
-}
+};
 
 Ghost.prototype.update = function () {
     game.physics.arcade.collide(this, this.mainGame.layer);
@@ -465,14 +464,17 @@ Ghost.prototype.update = function () {
     //Check if ghost is scared
     this.ifScared();
     
+    //MOVEMENT SETTINGS
     //Do movement when in bounds
-    if (this.inplay && this.x > 16 && this.x < 432 && !this.dead) {    
+    if (this.inplay && this.x > 16 && this.x < 432) {    
         if (this.scared) {
-            //Enter code to run here
-            this.scareMove(); //Temporary
+            this.scareMove();
+        } 
+        else if (this.dead) {
+            this.moveToHome();
         }
         else {
-            this.movement();
+            this.movement();    //Includes all phases
         }
     }
 

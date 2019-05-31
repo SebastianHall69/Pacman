@@ -44,6 +44,7 @@ MainGame.prototype = {
         this.load.audio('die', 'assets/audio/die.mp3');
         this.load.audio('eat', 'assets/audio/eat.mp3');
         this.load.audio('eatPill', 'assets/audio/eat_pill.mp3');
+        this.load.audio('eatGhost', 'assets/audio/eat_ghost.mp3')
         
     },
 
@@ -91,10 +92,12 @@ MainGame.prototype = {
         this.add.audio('die', 'assets/audio/die.wav');
         this.add.audio('eat', 'assets/audio/eat.mp3');
         this.add.audio('eatPill', 'assets/audio/eat_pill.mp3');
+        this.add.audio('eatGhost', 'assets/audio/eat_ghost.mp3')
         
     },
 
     update: function () {
-        document.getElementById("score").innerHTML="Score: " + this.score + " Lives: " + this.lives;
+        document.getElementById("score").innerHTML="Score: " + this.score
+        document.getElementById("lives").innerHTML="Lives: " + this.lives;
     }
 };

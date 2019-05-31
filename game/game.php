@@ -7,10 +7,9 @@
 <head>
     <title>Pacman</title>
     <meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         body {
-            margin: 0;
-            padding: 0;
             background-color: #000;
             color: white;
             text-align: center;
@@ -23,9 +22,10 @@
             margin-left: auto ;
             margin-right: auto ;
         }
-        #score {
-            margin: auto;
+        #score, #lives {
             vertical-align: center;
+            font-size: 150%;
+            font-family: 'Press Start 2P', cursive;
         }
     </style>
     <script src="//cdn.jsdelivr.net/phaser/2.2.2/phaser.min.js"></script>
@@ -43,10 +43,13 @@
 
     var game = new Phaser.Game(448, 496, Phaser.AUTO, 'pacman');
     game.state.add('Game', MainGame, true);
-
     </script>
 
-<p id="score">Game Loading</p>
+<div>
+    <span id="score">Game Loading</span>
+    <span id="lives" style="margin-left:10%;"></span>
+</div>
+    
 <div id="pacman"></div>
 
 </body>
