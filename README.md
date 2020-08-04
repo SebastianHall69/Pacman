@@ -1,2 +1,2 @@
 # PacmanGroup2
-Class repository for CIS17C group pacman game project
+Class repository for CIS17B group pacman game project
